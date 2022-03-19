@@ -41,3 +41,6 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: OnMap
+    uniqueID: 3998027865
+    locked: 0

@@ -1,30 +1,38 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Map
 {
     public class MapCellKeeper : MonoBehaviour
     {
+        public UnityEvent CellsInitialized;
         [SerializeField]
         private MapData _mapData;
         [SerializeField]
         private bool _showMap;
         [SerializeField]
         private bool _showCenters;
-        private Vector2[,] _cellCenters;
+        private CellData[,] _cells;
 
         public MapData MapData => _mapData;
-        public Vector2[,] CellCenters => _cellCenters;
-
+        public CellData[,] Cells => _cells;      
+        
         private void Awake()
         {
-            if(_cellCenters == null) CalculateCellCenters();    
+            if(_cells == null) InitializeCells();
+            CellsInitialized?.Invoke();
+        }
+        
+        public CellData Cell(MapPosition position)
+        {
+            return _cells[position.X, position.Y];
         }
 
-        [ContextMenu ("Calculate cell centers")]
-        private void CalculateCellCenters()
+        [ContextMenu ("Initialize cells")]
+        private void InitializeCells()
         {
-            _cellCenters = new Vector2[_mapData.Columns, _mapData.Rows];
+            _cells = new CellData[_mapData.Columns, _mapData.Rows];
 
             float horizontalStep = (float)1 / _mapData.Columns;
             float verticalStep = (float)1 / _mapData.Rows;
@@ -49,8 +57,10 @@ namespace Map
                         rightTopColumn, j * verticalStep);
                     Vector2 rightTop= Vector2.Lerp(rightBottomColumn, 
                         rightTopColumn, (j + 1) * verticalStep);
-
-                    _cellCenters[i, j] = (leftBottom + leftTop + rightBottom + rightTop) / 4;
+                    
+                    Vector2 cellCenter = (leftBottom + leftTop + rightBottom + rightTop) / 4;
+                    cellCenter.y += 0.1f;
+                    _cells[i, j].Initialize(cellCenter);
                 }
             }
         }
@@ -73,12 +83,44 @@ namespace Map
                 Gizmos.DrawLine(leftPoint, rightPoint);
             }
 
-            if(_cellCenters == null || _showCenters == false) return;
-            Gizmos.color = Color.white;
+            if(_cells == null || _showCenters == false) return;
+            
             for(int i = 0; i < _mapData.Columns; i++)
                 for(int j = 0; j < _mapData.Rows; j++)
-                    Gizmos.DrawSphere(_cellCenters[i, j], 0.1f);
+                {
+                    switch(_cells[i, j].CellType)
+                    {
+                        case CellType.Empty:
+                        Gizmos.color = Color.white;
+                        break;
+
+                        case CellType.Stone:
+                        Gizmos.color = Color.red;
+                        break;
+                    }
+                    Gizmos.DrawSphere(_cells[i, j].Center, 0.1f);
+                }
         }
+    }
+
+    [Serializable]
+    public struct CellData
+    {
+        public Vector2 Center {get; private set;}
+        public CellType CellType;
+
+        public void Initialize(Vector2 center)
+        {
+            Center = center;
+            CellType = CellType.Empty;
+        }
+    }
+
+    public enum CellType
+    {
+        Empty,
+        Stone,
+        Player
     }
 
     [Serializable]
