@@ -9,10 +9,42 @@ namespace Map
 
         public MapPosition Position(int x, int y)
         {
-            if(x < 0 || x >= _cellKeeper.MapData.Columns) return null;
-            if(y < 0 || y >= _cellKeeper.MapData.Rows) return null;
+            if(x < 0) x = 0;
+            if(x >= _cellKeeper.MapData.Columns)x = _cellKeeper.MapData.Columns - 1;
+            if(y < 0) y = 0;
+            if(y >= _cellKeeper.MapData.Rows) y = _cellKeeper.MapData.Rows - 1;
             return new MapPosition(x, y);
         }
+
+        public MapPosition[] CellsOnLine(MapPosition begin, MapPosition end)
+        {
+            int distance;
+            bool XLine;
+            if(begin.X == end.X)
+            {
+                distance = end.Y - begin.Y;
+                XLine = false;  
+            }
+            else
+            {
+                distance = end.X - begin.X;
+                XLine = true;
+            }
+            MapPosition[] positions = new MapPosition[Mathf.Abs(distance) + 1];
+
+            int i = 0;
+            positions[i] = begin;
+            int step = (int)Mathf.Sign(distance);
+            while(i != distance)
+            {
+                i += step;
+                if(XLine) positions[Mathf.Abs(i)] = Position(begin.X + i, begin.Y);
+                else positions[Mathf.Abs(i)] = Position(begin.X, begin.Y + i);
+            }
+            foreach(MapPosition pos in positions)
+                Debug.Log(pos.X + " " + pos.Y);
+            return positions;
+        } 
 
         public MapPosition CalculatePosition(Vector2 position)
         {

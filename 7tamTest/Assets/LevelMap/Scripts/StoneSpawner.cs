@@ -21,7 +21,7 @@ namespace Map
                     if(j % 2 == 0) continue;
                     GameObject stone = Instantiate(_stonePrefab, _cellKeeper.Cells[i, j].Center, Quaternion.identity, _level);
                     stone.GetComponent<SpriteRenderer>().sortingOrder = _cellKeeper.MapData.Rows - j;
-                    _cellKeeper.Cells[i, j].CellType = CellType.Stone;
+                    _cellKeeper.Cells[i, j].ChangeType(CellType.Stone, null);
                 }
             }
         }

@@ -8,6 +8,10 @@ namespace Units
         [SerializeField]
         private Transform _transform;
         [SerializeField]
+        private CellType _unitType;
+        [SerializeField]
+        private UnitBehavior _behavior;
+        [SerializeField]
         private SpriteRenderer _spriteRenderer;
         [SerializeField]
         private float _speed;
@@ -24,6 +28,11 @@ namespace Units
         private MapPositionCalculator _positionCalculator;
         private MapPosition _curPos;
         private MapPosition _targetPos;
+
+        public MapCellKeeper CellKeeper => _cellKeeper;
+        public MapPositionCalculator PositionCalculator => _positionCalculator;
+        public MapPosition CurrentPosition => _curPos;
+        private MapPosition TargetPosition => _targetPos;
 
         private void Awake()
         {
@@ -73,7 +82,7 @@ namespace Units
                 _targetPos = _curPos;
                 return;
             } 
-            if(_cellKeeper.Cell(_targetPos).CellType == CellType.Stone)
+            if(_cellKeeper.Cell(_targetPos).Type == CellType.Stone)
                 _targetPos = _curPos;
         }
 
@@ -90,9 +99,9 @@ namespace Units
 
         private void ChangeCurrentPosition()
         {
-            _cellKeeper.Cells[_curPos.X, _curPos.Y].CellType = CellType.Empty;
+            _cellKeeper.Cells[_curPos.X, _curPos.Y].ClearCell();
             _curPos = _targetPos;
-            _cellKeeper.Cells[_curPos.X, _curPos.Y].CellType = CellType.Player;
+            _cellKeeper.Cells[_curPos.X, _curPos.Y].ChangeType(_unitType, _behavior);
             _spriteRenderer.sortingOrder = _cellKeeper.MapData.Rows - _curPos.Y;
         }
     }

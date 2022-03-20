@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using Units;
 
 namespace Map
 {
@@ -88,7 +89,7 @@ namespace Map
             for(int i = 0; i < _mapData.Columns; i++)
                 for(int j = 0; j < _mapData.Rows; j++)
                 {
-                    switch(_cells[i, j].CellType)
+                    switch(_cells[i, j].Type)
                     {
                         case CellType.Empty:
                         Gizmos.color = Color.white;
@@ -107,12 +108,25 @@ namespace Map
     public struct CellData
     {
         public Vector2 Center {get; private set;}
-        public CellType CellType;
+        public CellType Type {get; private set;}
+        public UnitBehavior Unit {get; private set;}
 
         public void Initialize(Vector2 center)
         {
             Center = center;
-            CellType = CellType.Empty;
+            ClearCell();
+        }
+
+        public void ClearCell()
+        {
+            Type = CellType.Empty;
+            Unit = null;
+        }
+
+        public void ChangeType(CellType type, UnitBehavior unit)
+        {
+            Type = type;
+            Unit = unit;
         }
     }
 
